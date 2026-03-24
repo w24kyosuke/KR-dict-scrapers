@@ -3,12 +3,14 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 import time
-
-# アクセス間隔(※注意 サーバへの負荷軽減のための設定なので0.5~2.0を推奨)
-time_sleep = 2.0
+import random
 
 output_file = f"todays_korean.csv"
 base_list_url = "https://www.konest.com/contents/todays_korean_list.html"
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
+}
 
 def del_empty_line(str):
     lines = str.split('\n')
@@ -16,19 +18,7 @@ def del_empty_line(str):
     return '\n'.join(ret)
 
 def scrape_konest():
-    print(base_list_url)
-
-    # 1ページ目にアクセスして最大ページ数を取得
-    try:
-        res_first = requests.get(base_list_url.format(1))
-        res_first.raise_for_status()
-    except Exception as e:
-        print(f"ページ数取得のためのアクセスに失敗しました: {e}")
-        return
-        
-                
     print(f"スクレイピングを開始します。\n")
-    time.sleep(time_sleep) # 待機
 
     # 文字化けしないようにutf-8-sigでファイルを開く
     with open(output_file, mode="w", encoding="utf-8-sig", newline="") as f:
@@ -42,14 +32,14 @@ def scrape_konest():
             print(f"=== ページ {page} の一覧ページを取得中 ===")
             
             try:
-                res = requests.get(list_url)
+                res = requests.get(list_url, headers=headers)
                 res.raise_for_status()
             except Exception as e:
                 print(f"一覧ページの取得に失敗しました (Page {page}): {e}")
                 continue
 
             # 待機
-            time.sleep(time_sleep)
+            time.sleep(10.0)
             
             soup = BeautifulSoup(res.text, "html.parser")
 
@@ -65,15 +55,16 @@ def scrape_konest():
 
             # 取得した個別のページへ順番にアクセス
             for link in word_links:
+                rand_sleep = random.uniform(5.0, 15.0)
                 try:
-                    word_res = requests.get(link)
+                    word_res = requests.get(link, headers=headers)
                     word_res.raise_for_status()
                 except Exception as e:
                     print(f"  単語ページの取得に失敗しました ({link}): {e}")
                     continue
 
                 # 待機
-                time.sleep(time_sleep)
+                time.sleep(rand_sleep)
                 
                 word_soup = BeautifulSoup(word_res.text, "html.parser")
 
