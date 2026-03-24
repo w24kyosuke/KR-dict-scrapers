@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  vpn-scraper:
+    build: .
+    # VPN構築に必要なネットワーク管理権限をコンテナに付与
+    cap_add:
+      - NET_ADMIN
+    # 仮想ネットワークインターフェース(tun)をコンテナにマウント
+    devices:
+      - /dev/net/tun
+    # 開発しやすくするため、カレントディレクトリをマウント
+    volumes:
+      - .:/app
+    # VPN経由でもアクセス可能なパブリックDNSを指定
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
