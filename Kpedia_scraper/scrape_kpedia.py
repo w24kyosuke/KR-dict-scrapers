@@ -9,10 +9,11 @@ import re
 # スクレイピング対象の基本URL(Kpediaのホームページから各カテゴリにアクセスし、そのURLを引数で指定する)
 args = None
 
-# アクセス間隔(※注意 サーバへの負荷軽減のための設定なので0.5~2.0を推奨)
-time_sleep = 0.5
+# アクセス間隔(※注意 サーバへの負荷軽減のための設定なので0.3~2.0を推奨)
+time_sleep = 0.3
 
-def crawl_kpedia():
+
+def scrape_kpedia():
     args = sys.argv
     base_list_url = args[1]
     print(base_list_url)
@@ -37,7 +38,7 @@ def crawl_kpedia():
             if max_page_str.isdigit():
                 max_pages = int(max_page_str)
                 
-    print(f"全 {max_pages} ページをクローリングします。\n")
+    print(f"全 {max_pages} ページをスクレイピングします。\n")
     # カテゴリ名と収録単語数を取得
     category_name = ""
     word_count = ""
@@ -53,7 +54,7 @@ def crawl_kpedia():
             category_name = header_div.text.strip()  # 残ったテキストがカテゴリ名
             
     print(f"カテゴリ名: {category_name} (収録単語数: {word_count})")
-    print(f"全 {max_pages} ページをクローリングします。\n")
+    print(f"全 {max_pages} ページをスクレイピングします。\n")
     time.sleep(time_sleep) # 待機
 
     output_file = f"{category_name}_{word_count}words.csv"
@@ -164,7 +165,7 @@ def crawl_kpedia():
                 print(f"\r  取得完了: {word} - 進捗: {percentage:.1f}% ({processed_count}/{total_words}){' ' * 50}", end="", flush=True)
             print()
 
-    print(f"\nすべてのクローリングが完了し、'{output_file}' が作成されました。")
+    print(f"\nすべてのスクレイピングが完了し、'{output_file}' が作成されました。")
 
 if __name__ == "__main__":
-    crawl_kpedia()
+    scrape_kpedia()
